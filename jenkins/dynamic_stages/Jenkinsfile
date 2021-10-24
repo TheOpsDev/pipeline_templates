@@ -1,0 +1,65 @@
+def convert_to_array(userNames) {
+    def namesToPrint = userNames.replaceAll("\\s","").split(",")
+
+    if (namesToPrint.size() < 1) {
+        error("ERROR: User_Names must be a comma-delimited list.")
+    }
+
+    return namesToPrint
+}
+
+def generate_tasks(namesToPrint) {
+    def nameTasks = [:]
+
+    namesToPrint.each { name ->
+        nameTasks["Printing ${name}"] = {
+            stage("Printing ${name}") {
+                steps {
+                    script {
+                        println("Hello ${name}!!!")
+                    }
+                }
+            }
+        }
+    }
+}
+
+def print_userNames(userNames) {
+    def namesToPrint = convert_to_array(userNames)
+
+    def nameTasks = generate_tasks(namesToPrint)
+
+    println("Executing stages in parallel...")
+    parallel nameTasks 
+}
+
+properties([
+    parameters([
+        string(
+            name: 'User_Names',
+            description: 'Enter a comma separated list of names'
+        )
+    ])
+])
+
+pipeline {
+    agent {
+        label '<node_label_here>'
+    }
+
+    options {
+        timeout( time: 1, unit: 'HOURS' )
+    }
+
+    stages {
+        stage('Generating Dynamic Stages') {
+            steps {
+                script {
+                    def userNames = params.User_Names
+
+                    print_userNames(userNames)
+                }
+            }
+        }
+    }
+}

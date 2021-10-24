@@ -1,0 +1,34 @@
+pipeline {
+    agent {
+        label '<node_label_here>'
+    }
+
+    options {
+        timeout( time: 1, unit: 'HOURS' )
+    }
+
+    parameters {
+        string(
+            name: "User_Name",
+            description: "Enter a name"
+        ),
+        choice(
+            name: "Status",
+            choices: [
+                'Active',
+                'Deactivate'
+            ],
+            description: "Select desired state"
+        )
+    }
+
+    stages {
+        stage('Generating Dynamic Stages') {
+            steps {
+                script {
+                    println("User:\t${User_Name}\nStatus:\t${Status}")
+                }
+            }
+        }
+    }
+}
